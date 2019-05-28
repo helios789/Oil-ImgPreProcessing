@@ -1,34 +1,69 @@
 import cv2
 import numpy as np
+import os
 
-img_rgb = cv2.imread("./img/2019-05-16 10:47:52:cam2.jpg");
-img_resize = cv2.resize(img_rgb, (512, 512), interpolation=cv2.INTER_AREA)
+hsv_darkoil_filter_list = [
+    #[(lower_bound_h, s, v), (upper_bound_h, s, v)]
+    [(0, 0, 0), (179, 255, 200)],
+    [(95, 50, 0), (179, 255, 200)],
+    [(0, 0, 0), (179, 130, 150)],
+    [(0, 0, 0), (179, 130, 150)],
+    [(0, 0, 0), (179, 130, 150)],
+    [(0, 0, 0), (179, 130, 150)],
 
-img_hsv = cv2.cvtColor(img_resize, cv2.COLOR_BGR2HSV)
-h, s, v = cv2.split(img_hsv)
-hsv = np.concatenate((h, s, v), axis=1)
+    [(0, 0, 0), (179, 255, 200)],
+    [(95, 50, 0), (179, 255, 200)],
+    [(0, 0, 0), (179, 130, 150)],
+    [(0, 0, 0), (179, 130, 150)],
+    [(0, 0, 0), (179, 130, 150)],
+    [(0, 0, 0), (179, 130, 150)],
+
+    [(0, 0, 0), (179, 255, 200)],
+    [(95, 50, 0), (179, 255, 200)],
+    [(0, 0, 0), (179, 130, 150)],
+    [(0, 0, 0), (179, 130, 150)],
+    [(0, 0, 0), (179, 130, 150)],
+    [(0, 0, 0), (179, 130, 150)],
+]
+
+path_dir = os.getcwd() + "/img/"
+file_list = os.listdir(path_dir)
+
+print(file_list)
+
+for file in file_list:
+    img_rgb = cv2.imread(path_dir + file)
+    img_resize = cv2.resize(img_rgb, (256, 256), interpolation=cv2.INTER_AREA)
+
+    img_hsv = cv2.cvtColor(img_resize, cv2.COLOR_BGR2HSV)
+    h, s, v = cv2.split(img_hsv)
+    hsv = np.concatenate((h, s, v), axis=1)
+
+    mask_list = []
+
+    for filter in hsv_darkoil_filter_list:
+        hsv_lower_bound = filter[0]
+        hsv_uppter_bound = filter[1]
+
+        mask = cv2.inRange(img_hsv, hsv_lower_bound, hsv_uppter_bound)
+
+        mask_list.append(mask)
+
+    
+    temp = []
+    mask_list_row = 3
+    mask_list_col = 6
+
+    for i in range(mask_list_row):
+        temp.append(np.concatenate(mask_list [mask_list_col*i : mask_list_col*(i+1)], axis=1))
+    result = np.concatenate(temp, axis=0)
+
+    cv2.imshow('hsv', hsv)
+    cv2.imshow('mask', result)
+    cv2.imshow('origin', img_resize)
+
+    # cv2.imwrite('./mask.jpg', mask);
+    cv2.waitKey(0)
 
 
-# TODO: 여러개의 lower, upper 필터를 설정하여 
-# 여러개의 output 을 출력 후 한개를 마우스로 클릭하여 저장하는 기능 추가
-
-lower_darkoil = (95, 50, 0)
-upper_darkoil = (179, 255, 200)
-
-# lower_darkoil = (0, 0, 0)
-# upper_darkoil = (255, 255, 80)
-
-mask = cv2.inRange(img_hsv, lower_darkoil, upper_darkoil)
-overlap = cv2.bitwise_and(img_resize, img_resize, mask = mask)
-result = np.concatenate((img_resize, img_hsv, overlap), axis=1)
-
-
-cv2.imshow('hsv', hsv)
-cv2.imshow('result', result)
-cv2.imshow('mask', mask)
-
-# cv2.imwrite('./mask.jpg', mask);
-
-
-cv2.waitKey(0)
 cv2.destroyAllWindows()
