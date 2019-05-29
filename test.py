@@ -29,7 +29,7 @@ filter_list_col = 6
 hsv_darkoil_filter_list = [
     #[(lower_bound_h, s, v), (upper_bound_h, s, v)]
     #[(lower_bound_h, s, v), (upper_bound_h, s, v)]
-    [(0, 0, 0), (179, 255, 200)],    
+    [(0, 0, 0), (179, 200, 200)],    
     [(0, 0, 0), (179, 130, 150)],    
     [(0, 0, 0), (179, 90, 120)],    
     [(50, 80, 0), (179, 255, 200)],
@@ -47,6 +47,8 @@ hsv_darkoil_filter_list = [
 path_dir = os.getcwd() + "/img/"
 output_path_dir = os.getcwd() +"/mask/"
 file_list = os.listdir(path_dir)
+file_list.sort()
+print(file_list)
 
 print("총 " + str(len(file_list)) + " 개의 이미지 로드")
 
@@ -76,7 +78,7 @@ for idx, file in enumerate(file_list):
         temp.append(np.concatenate(mask_list [filter_list_col*i : filter_list_col*(i+1)], axis=1))
     result = np.concatenate(temp, axis=0)
 
-    cv2.imshow('hsv', hsv)
+    # cv2.imshow('hsv', hsv)
     cv2.imshow('mask', result)
     cv2.imshow('origin', img_resize)
 
