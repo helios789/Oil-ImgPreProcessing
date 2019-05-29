@@ -48,7 +48,6 @@ path_dir = os.getcwd() + "/img/"
 output_path_dir = os.getcwd() +"/mask/"
 file_list = os.listdir(path_dir)
 file_list.sort()
-print(file_list)
 
 print("총 " + str(len(file_list)) + " 개의 이미지 로드")
 
@@ -85,9 +84,14 @@ for idx, file in enumerate(file_list):
     # cv2.imwrite('./mask.jpg', mask);
     while(1):
         spacebar = 32
+        esc = 27
         inputKey = cv2.waitKey(0)
+        
+        if(inputKey == esc):
+            print("Pass.. " + str(idx + 1) + " / " + str(len(file_list))  + " 완료\n")
+            break;
 
-        if(inputKey == spacebar):
+        elif(inputKey == spacebar):
             print(file + ' 저장.. ' + str(idx + 1) + " / " + str(len(file_list))  + " 완료\n")
 
             img_hsv = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2HSV)
