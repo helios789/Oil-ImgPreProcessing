@@ -2,6 +2,18 @@ import cv2
 import numpy as np
 import os
 
+
+def mouse_callback(event, x, y ,flags, param):
+
+    # mouse Left button clicked
+    if event == cv2.EVENT_FLAG_MBUTTON and flags == cv2.EVENT_LBUTTONDOWN:
+        X = x / 256
+        Y = y / 256
+        print(X,", ",Y)
+
+cv2.namedWindow('mask')
+cv2.setMouseCallback('mask', mouse_callback)
+
 filter_list_row = 2
 filter_list_col = 6
 hsv_darkoil_filter_list = [
@@ -25,7 +37,7 @@ path_dir = os.getcwd() + "/img/"
 file_name = "2019-05-16 11:39:15:cam1.jpg"
 
 img_rgb = cv2.imread(path_dir + file_name)
-img_resize = cv2.resize(img_rgb, (320, 320), interpolation=cv2.INTER_AREA)
+img_resize = cv2.resize(img_rgb, (256, 256), interpolation=cv2.INTER_AREA)
 
 img_hsv = cv2.cvtColor(img_resize, cv2.COLOR_BGR2HSV)
 h, s, v = cv2.split(img_hsv)
