@@ -29,22 +29,19 @@ while(cap.isOpened()):
         yuv = cv2.cvtColor(result, cv2.COLOR_BGR2YUV)
         y, u, v = cv2.split(yuv)
 
+        ret, thresh_u = cv2.threshold(u, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+
         # for i in range(IMG_RESIZE[0]):
         #     for j in range(IMG_RESIZE[0]):
-        #         if y[i][j] > 100:
-        #             result[i][j][:] = 255
-        #         else:
-        #             result[i][j][:] = 0
-        ret, thresh_u = cv2.threshold(u, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-        ret, thresh_v = cv2.threshold(v, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+        #         if y[i][j] < 100:
+        #             result[i][j][:] = [0, 0, 255]
 
         cv2.imshow('frame', frame)
         cv2.imshow('seg', result)
         cv2.imshow('y', y)
         cv2.imshow('u', u)
         cv2.imshow('v', v)
-        cv2.imshow('thresh_otsu_u', thresh_u)
-        cv2.imshow('thresh_otsu_v', thresh_v)
+        cv2.imshow('thresh_otsu_v', thresh_u)
 
         print(time.time() - start)
 
