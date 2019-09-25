@@ -63,34 +63,35 @@ ok = tracker.init(frame, bbox)
 while(cap.isOpened()):
     # Capture frame-by-frame
     ret, frame = cap.read()
-    if fast_flag == True:
-        if fast > 0:
-            fast -= 1
-            continue
-        else:
-            fast = 100
-            fast_flag = False
-
-
-    frame = cv2.resize(frame, (IMG_RESIZE[0], IMG_RESIZE[1]))
-
-    ok, bbox = tracker.update(frame)
-    if ok:
-        # Tracking success
-        p1 = (int(bbox[0]), int(bbox[1]))
-        p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
-        
-        cv2.rectangle(frame, p1, p2, (255,0,0), 2, 1)
-        # cv2.rectangle(frame, p1, p2, (255,0,0), -1) 
-    else :
-        # Tracking failure
-        print("Tracking failure detected")
-
-    cv2.imshow('original', cv2.resize(frame, (512, 512)))
-    frame = cv2.GaussianBlur(frame, (7,7), 0)
     # cv2.rectangle(frame, p1, p2, (0,123,180), -1)
 
     if ret == True:
+        if fast_flag == True:
+            if fast > 0:
+                fast -= 1
+                continue
+            else:
+                fast = 100
+                fast_flag = False
+
+
+        frame = cv2.resize(frame, (IMG_RESIZE[0], IMG_RESIZE[1]))
+
+        ok, bbox = tracker.update(frame)
+        if ok:
+            # Tracking success
+            p1 = (int(bbox[0]), int(bbox[1]))
+            p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
+            
+            cv2.rectangle(frame, p1, p2, (255,0,0), 2, 1)
+            # cv2.rectangle(frame, p1, p2, (255,0,0), -1) 
+        else :
+            # Tracking failure
+            print("Tracking failure detected")
+
+        cv2.imshow('original', cv2.resize(frame, (512, 512)))
+        frame = cv2.GaussianBlur(frame, (7,7), 0)
+
         start = time.time()
         cropped = frame[y: y+h, x:x+w].copy()
         
@@ -119,9 +120,9 @@ while(cap.isOpened()):
 
         yuv = cv2.cvtColor(result, cv2.COLOR_BGR2YUV)
 
-        cv2.imshow('y', yuv[:,:,0])
-        cv2.imshow('u', yuv[:,:,1])
-        cv2.imshow('v', yuv[:,:,2])
+        # cv2.imshow('y', yuv[:,:,0])
+        # cv2.imshow('u', yuv[:,:,1])
+        # cv2.imshow('v', yuv[:,:,2])
 
         # thresh_y = cv2.adaptiveThreshold(yuv[:, :, 0], 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 51, 11)
         _, thresh_y = cv2.threshold(yuv[:,:,0], thresh, 255, cv2.THRESH_TOZERO)

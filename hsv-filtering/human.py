@@ -26,7 +26,7 @@ cap = cv2.VideoCapture('1.mp4')
 
 if (cap.isOpened()== False): 
     print("Error opening video stream or file")
-cap.set(cv2.CAP_PROP_POS_MSEC,17*60*1000)  
+cap.set(cv2.CAP_PROP_POS_MSEC,1*60*1000)  
 
 cv2.namedWindow('original')
 cv2.setMouseCallback('original', mouse_callback)
@@ -62,16 +62,6 @@ frame = cv2.resize(frame, (IMG_RESIZE[0], IMG_RESIZE[1]))
 while(cap.isOpened()):
     # Capture frame-by-frame
     ret, frame = cap.read()
-    if fast_flag == True:
-        if fast > 0:
-            fast -= 1
-            continue
-        else:
-            fast = 100
-            fast_flag = False
-
-
-    frame = cv2.resize(frame, (IMG_RESIZE[0], IMG_RESIZE[1]))
 
     # ok, bbox = tracker.update(frame)
     # if ok:
@@ -85,11 +75,23 @@ while(cap.isOpened()):
     #     # Tracking failure
     #     print("Tracking failure detected")
 
-    cv2.imshow('original', cv2.resize(frame, (512, 512)))
-    frame = cv2.GaussianBlur(frame, (7,7), 0)
+
     # cv2.rectangle(frame, p1, p2, (0,123,180), -1)
 
-    if ret == True:
+    if ret == True:    
+        if fast_flag == True:
+            if fast > 0:
+                fast -= 1
+                continue
+            else:
+                fast = 100
+                fast_flag = False
+
+        frame = cv2.resize(frame, (IMG_RESIZE[0], IMG_RESIZE[1]))
+        cv2.imshow('original', cv2.resize(frame, (512, 512)))
+        frame = cv2.GaussianBlur(frame, (7,7), 0)
+
+
         start = time.time()
         cropped = frame[y: y+h, x:x+w].copy()
         
