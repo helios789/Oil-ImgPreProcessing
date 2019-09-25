@@ -21,7 +21,10 @@ print(time.time() - start)
 
 while(True):
     ch = cv2.waitKey(1)
-    print(ch)
+            
+    if(ch != -1):
+        print(ch)
+    
     if ch == 27:
         break
 

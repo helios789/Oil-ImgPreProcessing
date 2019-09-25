@@ -16,14 +16,17 @@ def mouse_callback(event, x, y, flags, param):
         print(point_list)
         cv2.circle(img_original, (x, y), 3, (0, 0, 255), -1)
 
-IMG_RESIZE = (512, 512)
+IMG_RESIZE = (256, 256)
 point_list = []
 count = 0
 
-cap = cv2.VideoCapture(0)
+
+#cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture('2.mp4')
 
 if (cap.isOpened()== False): 
     print("Error opening video stream or file")
+cap.set(cv2.CAP_PROP_POS_MSEC,60*11*1000)  
 
 cv2.namedWindow('original')
 cv2.setMouseCallback('original', mouse_callback)
@@ -45,16 +48,52 @@ pts = np.array(point_list, np.int32)
 rect = cv2.boundingRect(pts)
 x, y, w, h = rect
 
+thresh = 60
+fast = 1000
+fast_flag = False
+
+ret, frame = cap.read()
+frame = cv2.resize(frame, (IMG_RESIZE[0], IMG_RESIZE[1]))
+# tracker = cv2.cv2.TrackerCSRT_create()
+tracker = cv2.cv2.TrackerTLD_create()
+bbox = cv2.selectROI(frame, False)
+ok = tracker.init(frame, bbox)
 
 while(cap.isOpened()):
     # Capture frame-by-frame
     ret, frame = cap.read()
+    if fast_flag == True:
+        if fast > 0:
+            fast -= 1
+            continue
+        else:
+            fast = 100
+            fast_flag = False
+
+
     frame = cv2.resize(frame, (IMG_RESIZE[0], IMG_RESIZE[1]))
+
+    ok, bbox = tracker.update(frame)
+    if ok:
+        # Tracking success
+        p1 = (int(bbox[0]), int(bbox[1]))
+        p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
+        
+        cv2.rectangle(frame, p1, p2, (255,0,0), 2, 1)
+        # cv2.rectangle(frame, p1, p2, (255,0,0), -1) 
+    else :
+        # Tracking failure
+        print("Tracking failure detected")
+
     cv2.imshow('original', frame)
+    frame = cv2.GaussianBlur(frame, (7,7), 0)
+    # cv2.rectangle(frame, p1, p2, (0,123,180), -1)
 
     if ret == True:
         start = time.time()
         cropped = frame[y: y+h, x:x+w].copy()
+        
+        bbox = tracker.update(frame)
         # cv2.imshow('crop', cropped)
 
         ## (2) make mask
@@ -83,7 +122,8 @@ while(cap.isOpened()):
         cv2.imshow('u', yuv[:,:,1])
         cv2.imshow('v', yuv[:,:,2])
 
-        thresh_y = cv2.adaptiveThreshold(yuv[:, :, 0], 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 21, 5)
+        # thresh_y = cv2.adaptiveThreshold(yuv[:, :, 0], 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 51, 11)
+        _, thresh_y = cv2.threshold(yuv[:,:,0], thresh, 255, cv2.THRESH_TOZERO)
         cv2.imshow('treshold', thresh_y)
 
 
@@ -91,7 +131,16 @@ while(cap.isOpened()):
 
 
         print(time.time() - start)
-        cv2.waitKey(1)
+        ch = cv2.waitKey(1)
+        print('thresh: ', thresh)
+        if ch == 113:    # 'Q'
+            thresh += 1
+        elif ch == 97:  # 'A'
+            thresh -= 1
+        elif ch == 102:  # 'A'
+            fast_flag = True
+        elif ch == 27:
+            break
         # 좌표 순서 - 상단왼쪽 끝, 상단오른쪽 끝, 하단왼쪽 끝, 하단오른쪽 끝
 
         # cv2.fillPoly(temp, [pts], (255, 255, 255))
